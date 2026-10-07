@@ -1,0 +1,11 @@
+<div class="backdrop">
+  <div class="modal">
+    <h2>¿Quién sos?</h2>
+    <p>Elegí tu nombre para cargar gastos en este grupo.</p>
+    <div class="list">
+      @for (p of participants(); track p.id) {
+        <button (click)="chosen.emit(p.id)">{{ p.name }}</button>
+      }
+    </div>
+  </div>
+</div>

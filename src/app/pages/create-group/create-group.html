@@ -1,0 +1,31 @@
+<main class="create-group">
+  <h1>Crear grupo</h1>
+  <p class="subtitle">Dividí gastos de una salida o viaje sin registro.</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Título
+      <input formControlName="title" placeholder="Ej: Bariloche 2026" />
+    </label>
+
+    <div formArrayName="participants">
+      <label>Participantes</label>
+      @for (control of participants.controls; track $index) {
+        <div class="row">
+          <input [formControlName]="$index" placeholder="Nombre" />
+          @if (participants.length > 2) {
+            <button type="button" class="icon-btn" (click)="removeParticipant($index)">✕</button>
+          }
+        </div>
+      }
+    </div>
+
+    <button type="button" class="secondary" (click)="addParticipant()">+ Agregar participante</button>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <button type="submit" [disabled]="submitting()">Crear grupo</button>
+  </form>
+</main>

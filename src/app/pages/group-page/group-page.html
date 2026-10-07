@@ -1,0 +1,111 @@
+@if (state.loading()) {
+  <div class="page">
+    <p class="muted">Cargando…</p>
+  </div>
+} @else if (state.error()) {
+  <div class="page">
+    <p class="error">{{ state.error() }}</p>
+  </div>
+} @else if (state.group()) {
+  <div class="page">
+    @if (!state.currentParticipantId()) {
+      <app-identity-modal [participants]="state.participants()" (chosen)="state.setCurrentParticipant($event)" />
+    }
+
+    <header class="header">
+      <h1>{{ state.group()!.title }}</h1>
+      @if (state.isClosed()) {
+        <span class="badge closed">Cerrado</span>
+      }
+    </header>
+
+    <section class="share">
+      <qrcode [qrdata]="groupUrl" [width]="120"></qrcode>
+      <div>
+        <p class="muted">Compartí este enlace para cargar gastos:</p>
+        <code>{{ groupUrl }}</code>
+      </div>
+    </section>
+
+    <section class="summary">
+      <div class="card">
+        <h3>Total gastado</h3>
+        <strong>{{ format(state.totalSpent()) }}</strong>
+      </div>
+      <div class="card">
+        <h3>Promedio por persona</h3>
+        <strong>{{ format(state.averagePerPerson()) }}</strong>
+      </div>
+    </section>
+
+    <section>
+      <h2>Balances</h2>
+      @for (b of state.balances(); track b.participant.id) {
+        <div class="balance">
+          <span>{{ b.participant.name }}</span>
+          <strong [class.positive]="b.netBalance > 0" [class.negative]="b.netBalance < 0">
+            {{ format(b.netBalance) }}
+          </strong>
+        </div>
+      }
+    </section>
+
+    @if (state.isClosed()) {
+      <section>
+        <h2>Transferencias finales</h2>
+        @if (state.transactions().length === 0) {
+          <p class="muted">Todas las cuentas quedaron saldadas.</p>
+        } @else {
+          @for (t of state.transactions(); track t.from.id + t.to.id) {
+            <div class="transfer">
+              <strong>{{ t.from.name }}</strong> le debe a <strong>{{ t.to.name }}</strong>:
+              {{ format(t.amount) }}
+            </div>
+          }
+        }
+      </section>
+    }
+
+    <section>
+      <h2>Gastos</h2>
+      @for (e of state.expenses(); track e.id) {
+        <div class="expense">
+          <div>
+            <strong>{{ e.description }}</strong>
+            <p class="muted">Pagó {{ payerName(e.paid_by) }}</p>
+          </div>
+          <div class="expense-right">
+            <strong>{{ format(e.amount) }}</strong>
+            @if (!state.isClosed()) {
+              <div class="actions">
+                <button class="icon" (click)="startEdit(e)">Editar</button>
+                <button class="icon danger" (click)="remove(e)">Eliminar</button>
+              </div>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="muted">Todavía no hay gastos.</p>
+      }
+    </section>
+
+    @if (!state.isClosed()) {
+      <div class="footer-actions">
+        <button (click)="startAdd()">+ Nuevo gasto</button>
+        <button class="secondary" (click)="closeAccount()">Cerrar cuenta</button>
+      </div>
+    }
+
+    <button class="copy" (click)="copySummary()">{{ copied() ? '¡Copiado!' : 'Copiar resumen' }}</button>
+
+    @if (showExpenseModal()) {
+      <app-expense-modal
+        [participants]="state.participants()"
+        [expense]="editingExpense()"
+        [splits]="editingSplits()"
+        (saved)="onSaved($event)"
+        (cancelled)="showExpenseModal.set(false)"
+      />
+    }
+  </div>
+}
