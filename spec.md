@@ -6,7 +6,7 @@ App web para dividir gastos de eventos cortos (salidas, viajes de fin de semana)
 Fuera de alcance: autenticación, multimoneda por grupo, adjuntar tickets, notificaciones push, división por porcentajes, agregar/editar/eliminar participantes después de crear el grupo, reabrir grupos cerrados.
 
 ## 2. Stack y restricciones
-- Angular 18+: standalone components, Signals, control de flujo @if/@for.
+- Angular 18+: standalone components.
 - Supabase: PostgreSQL + Realtime (Postgres Changes).
 - Estado centralizado en GroupStateService (signals; balances y transferencias como computed).
 - Reactive Forms para validación.
